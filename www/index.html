@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>کاسب محل</title>
+<style>
+:root{--bg:#2b1d12;--fg:#fff3dc;--ac:#e0a43a;--pn:#4a2f1a}
+@media(prefers-color-scheme:dark){:root{--bg:#1c130b}}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:20px Vazirmatn,Tahoma,sans-serif;overflow:hidden;touch-action:manipulation;user-select:none}
+#g{position:absolute;left:50%;top:50%;width:960px;height:540px;transform-origin:center}
+canvas{position:absolute;inset:0}
+.t{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;gap:8px;padding:8px 12px;background:#2b1d12cc;font-weight:bold}
+.bt{position:absolute;bottom:0;left:0;right:0;display:flex;gap:6px;padding:6px;background:#2b1d12dd}
+.b{flex:1;font:inherit;font-weight:bold;padding:12px 6px;border:0;border-radius:12px;background:var(--ac);color:#2b1d12;min-height:48px}
+.b.x{background:#b34a3a;color:#fff}
+.q{font:inherit;width:48px;height:44px;border:0;border-radius:10px;background:var(--ac);font-weight:bold}
+#m{position:absolute;inset:20px 40px;background:var(--pn);border:4px solid var(--ac);border-radius:18px;padding:14px;display:none;flex-direction:column;gap:10px}
+#m h2{margin:0;text-align:center}.bd{flex:1;overflow-y:auto}
+.r{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 4px;border-bottom:1px solid #fff3}
+.r b{min-width:130px}.s i{display:inline-block;min-width:40px;text-align:center;font-style:normal}
+#o{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:#fff7e6;color:#2b1d12;border:3px solid #8a5530;border-radius:16px;padding:10px 16px;display:none;text-align:center;gap:8px;flex-direction:column;min-width:380px}
+#o div{display:flex;gap:8px}
+#k{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:#000b;padding:8px 18px;border-radius:20px;display:none}
+#p{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:9;text-align:center}
+@media(orientation:portrait){#p{display:flex}}
+input{font:inherit;padding:8px;border-radius:8px;border:0;width:200px}
+</style></head><body>
+<div id="g"><canvas id="c" width="960" height="540"></canvas>
+<div class="t"><span id="h1"></span><span id="h2"></span><span id="h3"></span></div>
+<div id="o"></div><div id="k"></div>
+<div class="bt"><button class="b" onclick="buyP()">خرید عمده</button><button class="b" onclick="pp()">قیمت‌ها</button><button class="b" onclick="eqP()">تجهیزات</button><button class="b" onclick="loanP()">قرض</button><button class="b" onclick="teaP()">چای</button><button class="b x" onclick="closeShop()">تعطیلی مغازه</button><button class="b" onclick="menuP()">منو</button></div>
+<div id="m"></div></div>
+<div id="p">گوشی را به حالت افقی بچرخانید</div>
+<script>
+const $=i=>document.getElementById(i),fa=n=>(Math.round(n*10)/10).toLocaleString('fa-IR');
+// نام، دسته، واحد، شکل، رنگ، قیمت خرید عمده، قیمت فروش، نیاز به یخچال، وزنی  (قیمت‌ها تقریبی و تأییدنشده؛ قابل‌ویرایش)
+const P=[['gol','گلاب','سنتی','بطری','b','#e88fb0',55000,70000],['asal','عسل','سنتی','کیلوگرم','j','#d9921a',600000,750000,0,1],['chai','چای','خوراکی','بسته','x','#7a2f1d',250000,300000],['berenj','برنج','خوراکی','کیلوگرم','s','#efe3c0',140000,165000,0,1],['shekar','شکر','خوراکی','کیلوگرم','s','#fff',55000,65000,0,1],['dast','دستکش','نظافتی','جفت','x','#e6d23a',40000,55000],['zarf','مایع ظرف‌شویی','نظافتی','بطری','b','#3fbf6a',70000,90000],['pod','پودر لباسشویی','بهداشتی','بسته','x','#3a7bd5',120000,150000],['roghan','روغن','خوراکی','لیتر','b','#e8c33a',110000,135000],['adas','عدس','خوراکی','کیلوگرم','s','#c0703a',100000,125000,0,1],['mast','ماست محلی','خوراکی','عدد','j','#f4f4ea',45000,60000,1],['kare','کره','سنتی','بسته','x','#f2dc7a',90000,115000,1]];
+P.push(['sabon','صابون','بهداشتی','عدد','x','#8fd0e0',20000,28000,0,0,1],['nokhod','نخود','خوراکی','کیلوگرم','s','#d9b86a',90000,115000,0,1,1],['halva','حلوا ارده','سنتی','بسته','j','#8a5a2a',130000,160000,0,0,1],['satl','سطل پلاستیکی','لوازم خانه','عدد','j','#4a90d9',90000,120000,0,0,1]);
+P.push(['makaron','ماکارونی','خوراکی','بسته','x','#e8b84a',35000,45000,0,0,1],['rob','رب گوجه','خوراکی','قوطی','j','#c0392b',60000,80000,0,0,1],['sirke','سرکه','خوراکی','بطری','b','#b86a3a',30000,42000,0,0,1],['livan','لیوان شیشه‌ای','لوازم خانه','عدد','j','#cfe3ee',25000,35000,0,0,1]);
+const EQ=[['scale','ترازو',800000,'فروش نیم‌کیلویی کالاهای وزنی'],['fridge','یخچال',3000000,'نگهداری ماست و کره'],['shelf','قفسه بزرگ‌تر',2000000,'ظرفیت انبار +۱۰۰'],['counter','پیشخوان بزرگ‌تر',2500000,'مشتری بیشتر، صف بلندتر']];
+const K='kaseb_v1';let S,sh,pause=1,started=0,cart={},cs=[],door=0,coins=[],hand=0,spT=2,uid=0,AC,snd=1,mus=1,lk='';
+function mk(name){let st={},pr={};P.forEach(p=>{st[p[0]]=(p[8]||p[10])?0:20;pr[p[0]]=p[7]});return{name,money:5000000,debt:0,day:1,t:0,stock:st,sell:pr,eq:{},ds:5000000,rep:0,reg:{},kz:0}}
+function load(){try{let d=JSON.parse(localStorage.getItem(K));if(d&&d.v===1&&d.shops&&d.shops[d.cur])return d}catch(e){}return null}
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+S=load()||{v:1,cur:'s1',shops:{s1:mk('مغازه‌ی من')}};sh=S.shops[S.cur];fx();sh.rep=sh.rep||0;sh.reg=sh.reg||{};sh.kz=sh.kz||0;
+const used=()=>P.reduce((a,p)=>a+sh.stock[p[0]],0),cap=()=>150+(sh.eq.shelf?100:0)+lvl()*30,lvl=()=>Math.min(3,sh.rep/25|0),LV=['دکان','بقالی','سوپر محله','فروشگاه بزرگ'];
+function rep(d){let o=lvl();sh.rep=Math.max(0,Math.min(100,sh.rep+d));if(lvl()>o){toast('ارتقا! مغازه‌ی شما شد «'+LV[lvl()]+'»');bell()}}
+const REG=[['حاج‌خانم صغری',0,'#7a3a6a','سلام پسرم، گلاب خوب داری؟','چه روزگاری بود... با پدربزرگت چای می‌خوردیم.','بیا، این هم نان‌روغنی خودم.'],['آقا رضا نانوا',3,'#3a6bb0','صبح بخیر! برنج تازه رسیده؟','دماوند این روزها شلوغ شده.','تو بهترین بقال این محله‌ای.'],['معلم احمدی',2,'#4a8a4a','خسته نباشید، چای دارید؟','بچه‌ها از مغازه‌ی شما حرف می‌زنند.','هر کاری داشتی بگو، من هستم.'],['خانم نوری',8,'#c08a2a','روغن می‌خوام، گرون نباشه ها!','زمستان امسال سخت می‌گذره.','ممنون که حواست به ما هست.']];
+REG.length=0;REG.push(['آقا رضا نانوا',3,'#3a6bb0','صبح بخیر حاجی! برنج تازه رسیده؟','از قدیم گفتیم: بقال خوب، رفیق خوبه.','نان و نمک تو را هیچ‌وقت فراموش نمی‌کنم.'],['معلم احمدی',2,'#4a8a4a','خسته نباشید حاجی، چای دارید؟','بچه‌ها هنوز از مغازه‌تون حرف می‌زنن.','هر کاری داشتی بگو، رفیق قدیمی هستم.'],['غلام',1,'#6a5a3a','سلام حاجی! یه عسل خوب برام کنار گذاشتی؟','یادته جوون بودیم، تا نصفه‌شب سر همین مغازه می‌نشستیم؟','غلام تا زنده‌ست رفیق توئه، حاجی.',1],['رستگاری',4,'#7a4a3a','بر پیر و جوون سلام! شکر داری، حاجی؟','ما پیرمردها هنوز کم نیاوردیم، نه؟','تو که باشی، این محله بی‌رفیق نمی‌مونه.',1]);
+REG[2][4]='هر وقت از جلوی مغازه‌ت رد می‌شم، دلم باز می‌شه.';REG[3][3]='سلام حاجی! شکر داری؟ چایم بی‌شکر نمی‌چسبه.';REG[3][4]='امروز هوای دماوند حال‌وهوای خوبی داره، نه؟';EQ[2][3]='ظرفیت انبار +۱۰۰ و ۸ کالای تازه';
+function fx(){P.forEach(p=>{if(sh.stock[p[0]]==null){sh.stock[p[0]]=(p[8]||p[10])?0:20;sh.sell[p[0]]=p[7]}})}
+const KZ=['«پدرت و من همکلاسی بودیم. نان را هم نصف می‌کردیم.»','«سی سال پیش این مغازه را با یک ترازوی چوبی شروع کردی. یادته؟»','«یادمه یک زمستان سخت، فقط مغازه‌ی تو باز بود.»','«بچه‌ها بزرگ شدند، دماوند عوض شد، ولی تو هنوز همونی.»','«این مغازه فقط دکان نیست؛ یادگار همه‌ی ماست. آفرین.»'];
+function nbP(){panel('همسایه‌ها و اعتبار',REG.map(r=>{let f=sh.reg[r[0]]||0;return`<div class=r><b>${r[0]}</b><span>دوستی: ${fa(f)}</span><span>«${r[3+Math.min(2,f/3|0)]}»</span></div>`}).join('')+`<p>اعتبار: ${fa(sh.rep)} از ۱۰۰ | سطح: ${LV[lvl()]}<br>فروش منصفانه اعتبار می‌آورد و هر سطح مشتری و ظرفیت بیشتری می‌دهد.</p>`)}
+function toast(t){let k=$('k');k.textContent=t;k.style.display='block';clearTimeout(toast.i);toast.i=setTimeout(()=>k.style.display='none',2200)}
+// ---- صدا
+function tone(f,d,ty,v,t0,m){if(!AC||!(m?mus:snd))return;let o=AC.createOscillator(),g=AC.createGain(),s=AC.currentTime+(t0||0);o.type=ty||'sine';o.frequency.value=f;g.gain.setValueAtTime(v||.2,s);g.gain.exponentialRampToValueAtTime(.001,s+d);o.connect(g);g.connect(AC.destination);o.start(s);o.stop(s+d)}
+const bell=()=>{tone(1200,.7,'sine',.2);tone(1600,.6,'sine',.14,.12)},coin=()=>{tone(1400,.15,'square',.07);tone(2000,.3,'square',.07,.1)},place=()=>tone(160,.1,'triangle',.35);
+const SC=[293.7,329.6,349.2,392,440,466.2,523.3];let mi=3;
+setInterval(()=>{if(pause)return;mi=Math.max(0,Math.min(6,mi+[-2,-1,-1,0,1,1,2][Math.random()*7|0]));tone(SC[mi],1.4,'triangle',.06,0,1);if(Math.random()<.3)tone(SC[0]/2,2,'sine',.05,0,1)},650);
+// ---- پنل‌ها
+function panel(t,h){let m=$('m'),o=m.querySelector('.bd'),sc=o?o.scrollTop:0;m.innerHTML='<h2>'+t+'</h2><div class=bd>'+h+'</div><button class=b onclick="cl()">برگشت</button>';m.style.display='flex';pause=1;m.querySelector('.bd').scrollTop=sc}
+function cl(){$('m').style.display='none';pause=started?0:1}
+function buyP(){let tot=0;let rows=P.map(p=>{let q=cart[p[0]]||0;tot+=q*p[6];let lk=(p[8]&&!sh.eq.fridge)||(p[10]&&!sh.eq.shelf);return`<div class=r><b>${p[1]}</b><span>${p[3]} | موجودی ${fa(sh.stock[p[0]])}</span><span>${fa(p[6])} ت</span>`+(lk?'<span>'+(p[10]?'قفسه بزرگ‌تر لازم است':'یخچال لازم است')+'</span>':`<span class=s><button class=q onclick="cq('${p[0]}',1)">+</button><i>${fa(q)}</i><button class=q onclick="cq('${p[0]}',-1)">−</button></span>`)+'</div>'}).join('');panel('خرید از عمده‌فروشی',rows+`<div class=r><b>جمع: ${fa(tot)} تومان</b><span>انبار ${fa(used())}/${fa(cap())}</span><button class=b onclick="buyGo()">تأیید خرید</button></div>`)}
+function cq(i,d){cart[i]=Math.max(0,(cart[i]||0)+d);buyP()}
+function buyGo(){let tot=0,n=0;P.forEach(p=>{let q=cart[p[0]]||0;tot+=q*p[6];n+=q});if(!n)return toast('چیزی انتخاب نشده');if(tot>sh.money)return toast('پول کافی نیست');if(used()+n>cap())return toast('انبار جا ندارد');P.forEach(p=>sh.stock[p[0]]+=cart[p[0]]||0);sh.money-=tot;cart={};save();buyP();toast('خرید انجام شد')}
+const stp=p=>Math.max(1000,Math.round(p[6]*.05/1000)*1000);
+function pp(){panel('قیمت فروش','<button class=b onclick="ppa()">همهٔ قیمت‌ها را پیشنهادی کن</button>'+P.map(p=>{let pf=sh.sell[p[0]]-p[6];return`<div class=r><b>${p[1]}</b><span>خرید ${fa(p[6])}</span><span style="color:#ffe9a0">منصفانه ${fa(p[7])}</span><span class=s><button class=q onclick="sp('${p[0]}',1)">+</button><i style="min-width:90px">${fa(sh.sell[p[0]])}</i><button class=q onclick="sp('${p[0]}',-1)">−</button></span><span style="color:${pf<0?'#ff8a7a':'#9be58a'}">${pf<0?'زیان':'سود'} ${fa(Math.abs(pf))}<br>${fv(p)}</span></div>`}).join('')+'<p>قیمت‌ها تقریبی‌اند و بررسی‌نشده؛ خودتان تنظیم کنید.</p>')}
+function sp(i,d){let p=P.find(a=>a[0]==i);sh.sell[i]=Math.max(1000,sh.sell[i]+d*stp(p));save();pp()}
+function eqP(){panel('تجهیزات مغازه',EQ.map(e=>`<div class=r><b>${e[1]}</b><span>${e[3]}</span>`+(sh.eq[e[0]]?'<span>خریداری شد</span>':`<button class=b style="flex:0 0 180px" onclick="eqB('${e[0]}')">${fa(e[2])} ت</button>`)+'</div>').join(''))}
+function eqB(i){let e=EQ.find(a=>a[0]==i);if(sh.money<e[2])return toast('پول کافی نیست');sh.money-=e[2];sh.eq[i]=1;save();eqP();toast(e[1]+' به مغازه اضافه شد')}
+function loanP(){panel('آقای کاظمی',`<p>${KZ[Math.min(KZ.length-1,sh.kz+(sh.day/3|0))]}</p><p>«بدون سود، هر وقت داشتی برگردون.»</p><div class=r><b>بدهی: ${fa(sh.debt)} تومان</b></div><div class=r><button class=b onclick="bw(1000000)">قرض ۱ میلیون</button><button class=b onclick="bw(5000000)">قرض ۵ میلیون</button></div><div class=r><button class=b onclick="rp(1000000)">پرداخت ۱ میلیون</button><button class=b onclick="rp(sh.debt)">تسویه کامل</button></div><p>باقی‌مانده: ${fa(sh.debt)} تومان</p>`)}
+function bw(a){sh.money+=a;sh.debt+=a;save();loanP()}
+function rp(a){a=Math.min(a,sh.debt,sh.money);if(a<=0)return toast('پولی برای پرداخت نیست');sh.money-=a;sh.debt-=a;sh.kz++;if(!sh.debt&&!sh.kzd){sh.kzd=1;rep(5);toast('آقای کاظمی: آفرین، قرضت صاف شد')}save();loanP()}
+function menuP(){panel('منو',`<div class=r><button class=b onclick="snd=!snd;menuP()">صدا: ${snd?'روشن':'خاموش'}</button><button class=b onclick="S.spd=((S.spd|0)+1)%3;save();menuP()">مشتری: ${['سریع','آرام','خیلی آرام'][S.spd|0]}</button><button class=b onclick="mus=!mus;menuP()">موسیقی: ${mus?'روشن':'خاموش'}</button></div><div class=r><button class=b onclick="nbP()">همسایه‌ها و اعتبار</button></div><h3>مغازه‌ها</h3>`+Object.keys(S.shops).map(k=>`<div class=r><b>${S.shops[k].name}</b><span>روز ${fa(S.shops[k].day)} | ${fa(S.shops[k].money)} ت</span><button class=b style="flex:0 0 130px" onclick="sw('${k}')">${k==S.cur?'فعلی':'ورود'}</button></div>`).join('')+`<div class=r><input id=nn placeholder="نام مغازه جدید"><button class=b style="flex:0 0 200px" onclick="ns()">ساخت مغازه</button></div>`)}
+function sw(k){S.cur=k;sh=S.shops[k];fx();spT=2;sh.rep=sh.rep||0;sh.reg=sh.reg||{};sh.kz=sh.kz||0;cs=[];save();cl()}
+function ns(){let n=$('nn').value.trim();if(!n)return toast('یک نام بنویسید');let k='s'+Date.now();S.shops[k]=mk(n);sw(k)}
+function closeShop(){let pf=sh.money-sh.ds;panel('پایان روز '+fa(sh.day),`<p style="text-align:center;font-size:26px">سود امروز: ${fa(pf)} تومان<br>پول شما: ${fa(sh.money)} تومان</p><button class=b onclick="nd()">شروع روز بعد</button>`)}
+function nd(){sh.day++;sh.t=0;sh.ds=sh.money;cs=[];spT=3;save();cl()}
+function start(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();started=1;cl()}
+panel('کاسب محل','<p style="text-align:center;font-size:24px">مغازه‌ی قدیمی دماوند منتظر شماست.<br>مشتری را ببینید، کالا تحویل دهید و مغازه را بچرخانید.</p><button class=b onclick="start()">'+(sh.day>1||sh.money!=5000000?'ادامه بازی':'شروع بازی')+'</button>');
+// ---- مشتری
+const act=()=>cs.filter(c=>c.st<2),front=()=>{let c=act()[0];return c&&c.st==1&&away<=0?c:null};
+const CL=['#b04a3a','#3a6bb0','#4a8a4a','#8a4a8a','#c08a2a','#2a7a8a'],SK=['#e3b58c','#c98f68','#f0c8a0','#a8704a'],HR=['#222','#553322','#888','#ddd'];
+function spawn(){let av=P.filter(p=>(!p[8]||sh.eq.fridge)&&(!p[10]||sh.eq.shelf)),p=av[Math.random()*av.length|0],q=p[9]?(sh.eq.scale?[.5,1,1.5,2][Math.random()*4|0]:[1,2][Math.random()*2|0]):1+(Math.random()*3|0);cs.push({id:++uid,x:900,tx:420,st:0,p,q,sens:.85+Math.random()*.3,col:CL[Math.random()*6|0],sk:SK[Math.random()*4|0],hr:HR[Math.random()*4|0],f:Math.random()<.3,offer:0,msg:''});let c=cs[cs.length-1],r=Math.random()<.35&&REG.filter(a=>!cs.some(x=>x.n==a[0]));if(r&&r.length){r=r[Math.random()*r.length|0];let fr=sh.reg[r[0]]||0,fp=P[r[1]];c.p=fp;c.q=fp[9]?1:2;c.n=r[0];c.col=r[2];if(r[6])c.hr='#ddd';c.sens+=Math.min(.15,fr*.01);c.line=r[3+Math.min(2,fr/3|0)]}extra(c);bell()}
+function fin(c,pr){let p=c.p;if(sh.stock[p[0]]<c.q)return toast('موجودی کافی نیست');sh.stock[p[0]]-=c.q;let tot=Math.round(pr*c.q);sh.money+=tot;if(c.more&&c.more.length){let n=c.more.shift();c.p=n[0];c.q=n[1];c.offer=0;c.msg='و...';lk=''}else{c.st=2;c.msg='ممنون!';if(!c.back&&Math.random()<.12)BK.push({d:8+Math.random()*10,n:c.n,col:c.col,sk:c.sk,hr:c.hr,f:c.f})}hand=1;coins.push({x:420,y:300,s:'+'+fa(tot),l:1});place();coin();rep(pr<=c.p[7]*1.05?2:1);if(c.n){sh.reg[c.n]=(sh.reg[c.n]||0)+1;if(sh.reg[c.n]%5==0){let g=Math.round(c.p[6]*.3/1000)*1000;sh.money+=g;toast(c.n+' انعام داد: '+fa(g)+' تومان');rep(2)}}save()}
+function deliver(){let c=front();if(!c)return;let p=c.p,pr=sh.sell[p[0]],mk=p[7]*(c.sens+(sh.radio?.05:0));if(pr>mk*1.3){c.st=2;c.msg='خیلی گرونه!';rep(-1);return}if(pr>mk){c.offer=Math.max(1000,Math.round(mk/1000)*1000);c.msg='گرونه!';return}fin(c,pr)}
+function acc(){let c=front();if(c)fin(c,c.offer)}
+function ref(){let c=front();if(c){rep(-1);if(c.n)sh.reg[c.n]=Math.max(0,(sh.reg[c.n]||0)-1);c.st=2;c.msg=c.offer?'پس نمی‌خرم':'باشه'}}
+function ordUI(){let c=front(),o=$('o');if(!c||pause){o.style.display='none';lk='';return}let p=c.p,pr=sh.sell[p[0]],has=sh.stock[p[0]]>=c.q,key=[c.id,c.offer,pr,has].join();if(key==lk)return;lk=key;let h=(c.line?`<i>${c.n?c.n+': ':''}«${c.line}»</i>`:'')+`<b>${fa(c.q)} ${p[3]} ${p[1]}</b>`;if(!has)h+='<span>موجودی کافی نیست</span><div><button class="b x" onclick="ref()">رد کردن</button></div>';else if(c.offer){let l=c.offer<p[6];h+=`<span>«${fa(c.offer)} تومان بدم؟»${l?' (برای شما زیان دارد)':''}</span><div><button class=b onclick="acc()">قبول</button><button class="b x" onclick="ref()">نه</button></div>`}else h+=`<span>قیمت: ${fa(pr*c.q)} تومان (${fv(p)})</span><div><button class=b onclick="deliver()">تحویل کالا</button><button class="b x" onclick="ref()">رد کردن</button></div>`;o.innerHTML=h;o.style.display='flex'}
+// ---- رسم
+const X=$('c').getContext('2d');
+function R(a,b,w,h,f,r){X.fillStyle=f;X.beginPath();X.roundRect(a,b,w,h,r||0);X.fill()}
+function Ci(a,b,r,f){X.fillStyle=f;X.beginPath();X.arc(a,b,r,0,7);X.fill()}
+function prod(p,a,b,s){let k=p[4],f=p[5];X.save();X.translate(a,b);X.scale(s||1,s||1);
+if(k=='b'){R(-9,-34,18,34,f,4);R(-4,-44,8,12,f,2);R(-5,-48,10,5,'#444',2);R(-9,-22,18,10,'#fff9',2)}
+else if(k=='j'){R(-14,-28,28,28,f,6);R(-15,-35,30,8,'#6b4a2a',3);R(-9,-20,18,10,'#fff9',2)}
+else if(k=='x'){R(-13,-32,26,32,f,3);R(-13,-20,26,8,'#fffa')}
+else{X.fillStyle=f;X.beginPath();X.moveTo(-16,0);X.lineTo(-13,-30);X.lineTo(13,-30);X.lineTo(16,0);X.fill();R(-12,-24,24,8,'#0003')}
+X.restore()}
+const SKY=[[159,211,238],[107,188,240],[240,160,96],[20,33,61]];
+function sky(t){let u=Math.min(t,.999)*3,i=u|0,f=u-i,a=SKY[i],b=SKY[i+1];return'rgb('+a.map((v,j)=>v+(b[j]-v)*f|0)+')'}
+function cust(c,ts){let y=525,mv=Math.abs(c.x-c.tx)>3||c.st==2,b=mv?Math.sin(ts/90+c.id)*3:0,s=1.3;X.save();X.translate(c.x,y);X.scale(s,s);
+Ci(0,0,26,'#0003');if(c.tour){R(-26,-108,14,44,'#c0492a',5);R(-17,-158,34,10,'#2a6a3a',4)}R(-14,-48+b,10,48,'#333',3);R(4,-48-b,10,48,'#333',3);R(-20,-110,40,66,c.col,10);R(-27,-106,10,44,c.col,5);R(17,-106,10,44,c.col,5);Ci(0,-128,19,c.sk);R(-19,-150,38,14,c.hr,6);if(c.f)R(-20,-140,40,8,'#fff',4);Ci(-7,-130,2.5,'#222');Ci(7,-130,2.5,'#222');R(-6,-120,12,3,'#7a3a2a',2);X.restore();
+if(c.n&&c.st<2){X.font='bold 16px Tahoma';let nw=X.measureText(c.n).width+16;R(c.x-nw/2,y-200,nw,24,'#2b1d12cc',8);X.fillStyle='#ffe9a0';X.textAlign='center';X.fillText(c.n,c.x,y-183)}if(c.st==1&&c===act()[0]){let t=fa(c.q)+' '+c.p[3]+' '+c.p[1]+(c.more&&c.more.length?' و '+fa(c.more.length)+' کالای دیگر':'');X.font='bold 20px Tahoma';let w=X.measureText(t).width+70;R(c.x-w/2,y-270,w,50,'#fff',14);X.fillStyle='#fff';X.beginPath();X.moveTo(c.x-8,y-221);X.lineTo(c.x,y-205);X.lineTo(c.x+8,y-221);X.fill();prod(c.p,c.x+w/2-28,y-224,.8);X.fillStyle='#2b1d12';X.textAlign='center';X.fillText(t,c.x-24,y-237)}
+else if(c.msg){X.font='bold 20px Tahoma';let w=X.measureText(c.msg).width+24;R(c.x-w/2,y-255,w,34,'#fff',12);X.fillStyle='#2b1d12';X.textAlign='center';X.fillText(c.msg,c.x,y-231)}}
+function draw(ts){let t=sh.t,e=sh.eq;X.clearRect(0,0,960,540);
+R(0,0,960,390,'#c8a068');for(let i=0;i<960;i+=60)R(i,0,2,390,'#0002');R(0,390,960,150,'#7b4b2b');for(let i=0;i<150;i+=30)R(0,390+i,960,2,'#0003');
+X.save();X.beginPath();X.rect(50,70,200,150);X.clip();X.fillStyle=sky(t);X.fillRect(50,70,200,150);Ci(50+200*t,200-Math.sin(t*Math.PI)*110,t<.8?18:11,t<.8?'#ffe27a':'#eef');
+X.fillStyle='#6d7f9a';X.beginPath();X.moveTo(40,220);X.lineTo(130,105);X.lineTo(150,105);X.lineTo(260,220);X.fill();X.fillStyle='#fff';X.beginPath();X.moveTo(114,125);X.lineTo(130,105);X.lineTo(150,105);X.lineTo(166,127);X.lineTo(150,118);X.lineTo(140,128);X.lineTo(128,118);X.fill();X.restore();
+X.strokeStyle='#5a3418';X.lineWidth=8;X.strokeRect(50,70,200,150);R(148,70,5,150,'#5a3418');
+let rows=[150,225,300].concat(e.shelf?[75]:[]);R(296,rows[rows.length-1]-rows.length*0-(e.shelf?240:150)+(e.shelf?0:0)+ (e.shelf?-6:0),8,0,'#0000');
+let top=e.shelf?30:100;R(296,top,8,310-top,'#5a3418');R(796,top,8,310-top,'#5a3418');rows.forEach(y=>R(296,y,508,9,'#5a3418',2));
+P.forEach((p,i)=>{let n=sh.stock[p[0]];if(n<=0)return;let y=rows[i/5|0]||0,x0=350+(i%5)*95,m=Math.min(3,Math.ceil(n/6));for(let k=0;k<m;k++)prod(p,x0+k*26-26,y,1)});
+
+Ci(420,40,0,'#000');R(419,0,2,28,'#222');Ci(420,36,10,'#ffe9a0');
+if(e.fridge){R(40,250,115,205,'#dfe7ea',8);R(46,256,103,95,'#c9d6da',5);R(46,358,103,90,'#c9d6da',5);R(132,290,6,30,'#789',3);R(132,380,6,30,'#789',3)}
+// در
+X.fillStyle=sky(t);X.fillRect(830,150,100,250);let w=100*(1-door*.85);R(930-w,150,w,250,'#5a3a22',4);R(930-w+8,170,Math.max(0,w-16),80,'#9bc9e0',4);R(822,142,116,8,'#3a2412');R(822,142,8,260,'#3a2412');R(930,142,8,260,'#3a2412');
+// فروشنده
+let br=Math.sin(ts/600)*2,cx=420;R(cx-38,290+br,76,80,'#3c3c3c',14);R(cx-12,290+br,24,50,'#eee',4);Ci(cx,264+br,24,'#e3b58c');R(cx-26,228+br,52,14,'#555',6);R(cx-32,240+br,64,6,'#444',3);R(cx-17,271+br,34,8,'#ddd',5);let bl=ts%4000<130;[-8,8].forEach(d=>bl?R(cx+d-4,262+br,8,2,'#222'):Ci(cx+d,262+br,2.5,'#222'));
+// پیشخوان
+let cw=440+(e.counter?90:0);R(200,370,cw,95,'#8a5530',6);R(190,358,cw+20,18,e.counter?'#c88a50':'#a56a3a',6);for(let i=0;i<cw;i+=70)R(212+i,382,56,70,'#0002',4);
+if(hand>0){let h=hand;X.strokeStyle='#e3b58c';X.lineWidth=11;X.lineCap='round';X.beginPath();X.moveTo(cx+30,320);X.lineTo(cx+50+h*30,345+h*20);X.stroke()}
+R(228,320,50,38,'#555',5);R(234,326,38,14,'#9fd',3);if(e.scale){R(560,342,50,16,'#aaa',4);R(555,330,60,6,'#ccc',3);Ci(585,326,3,'#d33')}
+prod(P[1],330,358,.8);prod(P[0],470,358,.8);
+R(505,328,50,30,'#7a4a22',5);R(511,334,24,14,sh.radio?'#ffd98a':'#b89a6a',3);Ci(545,340,4,'#d9b36a');Ci(545,351,3,'#d9b36a');X.strokeStyle='#444';X.lineWidth=2;X.beginPath();X.moveTo(548,328);X.lineTo(566,300);X.stroke();
+if(sh.radio){X.font='18px Tahoma';X.fillStyle='#ffe9a0';X.textAlign='center';X.fillText('♪',520+Math.sin(ts/300)*8,318-(ts/50%22));if(rl){X.font='16px Tahoma';let w=X.measureText(rl).width+20;R(535-w/2,268,w,28,'#fff9e0',10);X.fillStyle='#2b1d12';X.fillText(rl,535,288)}}
+let pj=ph?Math.sin(ts/40)*2:0;R(285+pj,342,36,16,'#222',4);R(288+pj,334,30,9,'#555',4);if(ph){X.strokeStyle='#ffe9a0';X.lineWidth=3;X.beginPath();X.arc(303,332,14+Math.sin(ts/150)*3,3.6,5.8);X.stroke();X.font='bold 16px Tahoma';X.fillStyle='#ffe9a0';X.textAlign='center';X.fillText('تلفن!',303,306)}
+R(748,408,58,8,'#6b4a2a',3);R(756,416,5,40,'#6b4a2a');R(793,416,5,40,'#6b4a2a');Ci(777,386,19,'#b8842a');R(766,402,22,8,'#8a5a1a',3);R(764,360,26,6,'#8a5a1a',3);Ci(777,357,5,'#8a5a1a');R(793,380,12,5,'#8a5a1a',2);R(757,380,6,14,'#8a5a1a',2);
+if(tea){X.strokeStyle='#fff';X.globalAlpha=.6;X.lineWidth=3;for(let k=0;k<3;k++){X.beginPath();X.moveTo(772+k*5,350);X.bezierCurveTo(768+k*5,340-(ts/40+k*9)%12,782+k*5,332,776+k*5,320-(ts/50+k*7)%10);X.stroke()}X.globalAlpha=1}
+if(away>0){R(345,196,150,30,'#2b1d12cc',10);X.font='bold 18px Tahoma';X.fillStyle='#ffe9a0';X.textAlign='center';X.fillText('رفتم تحویل بدم...',420,217)}
+// مشتری‌ها
+cs.forEach(c=>cust(c,ts));if(tea)cust(tea.c,ts);
+coins.forEach(k=>{X.font='bold 26px Tahoma';X.fillStyle='rgba(255,230,120,'+k.l+')';X.textAlign='center';X.fillText(k.s,k.x,k.y)});
+// نور شب
+let a=Math.max(0,(t-.55)/.45)*.55;if(a>0){X.fillStyle='rgba(8,14,40,'+a+')';X.fillRect(0,0,960,540);X.globalCompositeOperation='lighter';let g=X.createRadialGradient(420,60,10,420,160,380);g.addColorStop(0,'rgba(255,200,110,'+a*.9+')');g.addColorStop(1,'rgba(255,200,110,0)');X.fillStyle=g;X.fillRect(0,0,960,540);X.globalCompositeOperation='source-over'}}
+// ---- حلقه بازی
+let last=0,sv=0;
+function step(ts){let dt=Math.min(.05,(ts-last)/1000||0);last=ts;
+if(!pause){sh.t=Math.min(1,sh.t+dt/240);let night=Math.max(0,sh.t-.7),lim=4;spT-=dt;if(spT<=0&&act().length<lim&&!tea){spawn();spT=SPM()*7*(1+night*3)}
+act().forEach((c,i)=>{c.tx=420+i*110});cs.forEach(c=>{if(c.st==2)c.tx=980;let d=c.tx-c.x;if(Math.abs(d)>3)c.x+=Math.sign(d)*Math.min(Math.abs(d),(200/Math.sqrt(SPM()))*dt);else if(c.st==0)c.st=1});
+cs=cs.filter(c=>c.x<960);let near=cs.some(c=>c.x>780);door+=((near?1:0)-door)*Math.min(1,dt*5);hand=Math.max(0,hand-dt*2);away=Math.max(0,away-dt);if(ph){ph.t-=dt;if(ph.t<=0)ph=null}else if(!away&&!tea){phT-=dt;if(phT<=0){ringPhone();phT=50+Math.random()*60}}if(sh.radio){rlT-=dt;if(rlT<=0){rl=RL[Math.random()*RL.length|0];rlT=14}}BK.forEach(b=>b.d-=dt);if(tea){tea.t-=dt;let k=Math.min(2,Math.floor((25-tea.t)/8.5));tea.c.msg=tea.r[3+k];if(tea.t<=0){toast(tea.n+' از چای ممنون بود');tea=null}}let rb=BK.find(b=>b.d<=0);if(rb&&act().length<lim&&!tea){BK.splice(BK.indexOf(rb),1);spawnBack(rb)}coins.forEach(k=>{k.y-=40*dt;k.l-=dt*.7});coins=coins.filter(k=>k.l>0);sv+=dt;if(sv>5){sv=0;save()}}
+draw(ts);ordUI();requestAnimationFrame(step)}
+setInterval(()=>{let t=sh.t;$('h1').textContent=sh.name;$('h2').textContent=DN[(sh.day-1)%7]+' '+fa(sh.day)+' | '+LV[lvl()]+' | اعتبار '+fa(sh.rep)+' | '+(t<.25?'صبح':t<.5?'ظهر':t<.75?'عصر':'شب');$('h3').textContent='صندوق: '+fa(sh.money)+' تومان'+(sh.debt?' | بدهی '+fa(sh.debt):'')},200);
+let tea=null,away=0,ph=null,phT=25,rl='',rlT=0,BK=[];const SPM=()=>[1,1.6,2.5][S.spd|0];
+const DN=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'],RL=['اخبار: امروز هوای دماوند دلپذیر است.','برنامهٔ ترانه‌های خوب قدیمی','پیش‌بینی: فردا کمی ابری','گفت‌وگو دربارهٔ باغ و گل','شعر و ترانه، مهمان این ساعت'];
+function fv(p){let r=sh.sell[p[0]]/p[7];return r<.95?'ارزان؛ سود کم':r<=1.05?'قیمت منصفانه':r<=1.15?'کمی گران':'گران؛ مشتری نمی‌خرد'}
+function ppa(){P.forEach(p=>sh.sell[p[0]]=p[7]);save();pp()}
+function extra(c){let av=P.filter(p=>(!p[8]||sh.eq.fridge)&&(!p[10]||sh.eq.shelf));
+if(!c.n&&(sh.day-1)%7>=5&&Math.random()<.5){let tp=av.filter(p=>['gol','asal','halva'].includes(p[0])),p=tp[Math.random()*tp.length|0];if(p){c.p=p;c.q=p[9]?1:1+(Math.random()*2|0);c.n='گردشگر';c.tour=1;c.sens+=.25;c.line='سلام! از شهر اومدیم دماوند، سوغاتی می‌خوایم.'}}
+else if(!c.n&&Math.random()<.25){c.more=[];for(let i=0,k=1+(Math.random()<.4?1:0);i<k;i++){let p=av[Math.random()*av.length|0];c.more.push([p,p[9]?1:1+(Math.random()*2|0)])}c.line='لیست خرید دارم، چند تا چیز می‌خوام.'}}
+function spawnBack(b){let av=P.filter(p=>!p[9]&&(!p[8]||sh.eq.fridge)&&(!p[10]||sh.eq.shelf)),p=av[Math.random()*av.length|0];cs.push({id:++uid,x:900,tx:420,st:0,p,q:1,sens:.95+Math.random()*.2,col:b.col,sk:b.sk,hr:b.hr,f:b.f,offer:0,msg:'',n:b.n,line:'ببخشید حاجی، یه چیزی یادم رفته بود!',back:1});bell()}
+function ringPhone(){let r=REG[Math.random()*REG.length|0],p=P[r[1]],L=['می‌شه '+p[1]+' برام بفرستی؟','سلام حاجی، '+p[1]+' داری بفرستی دم در؟'];ph={n:r[0],p,q:p[9]?1:2,line:L[Math.random()*2|0],t:30};tone(900,.12,'square',.1)}
+function phP(){if(!ph)return;let p=ph.p,tot=sh.sell[p[0]]*ph.q+5000,ok=sh.stock[p[0]]>=ph.q;panel('تلفن مغازه',`<p>${ph.n}: «${ph.line}»</p><p><b>${fa(ph.q)} ${p[3]} ${p[1]}</b> | ${fa(tot)} تومان (با ۵ هزار تومان هزینهٔ رساندن)</p>`+(ok?'<button class=b onclick="phGo()">می‌برم دم در</button>':'<p>موجودی کافی نیست</p>')+'<button class="b x" onclick="phNo()">الان نمی‌شه</button>')}
+function phGo(){let p=ph.p;sh.stock[p[0]]-=ph.q;sh.money+=sh.sell[p[0]]*ph.q+5000;sh.reg[ph.n]=(sh.reg[ph.n]||0)+2;rep(2);away=8;coin();toast(ph.n+' ممنون شد');ph=null;save();cl()}
+function phNo(){ph=null;cl()}
+$('c').addEventListener('pointerdown',e=>{if(pause)return;let r=$('c').getBoundingClientRect(),x=(e.clientX-r.left)*960/r.width,y=(e.clientY-r.top)*540/r.height;if(x>495&&x<580&&y>295&&y<365){sh.radio=!sh.radio;rlT=0;toast(sh.radio?'رادیو روشن شد':'رادیو خاموش شد');save()}else if(x>735&&x<820&&y>340&&y<460){teaP()}else if(x>275&&x<335&&y>295&&y<365){if(ph)phP();else toast('تلفن ساکت است')}});
+setInterval(()=>{if(pause)return;if(ph){tone(900,.12,'square',.09);tone(900,.12,'square',.09,.18)}if(sh.radio&&started)tone(SC[Math.random()*7|0]*1.5,.45,'triangle',.05,0,1)},1000);
+function teaP(){if(tea)return toast('چای در حال نوشیدن است');if(act().length)return toast('اول مشتری‌ها را راه بیندازید');if(sh.stock.chai<1)return toast('چای نداری! از عمده‌فروشی بخر');panel('چای با دوستان',REG.map((r,i)=>{let f=sh.reg[r[0]]||0;return`<div class=r><b>${r[0]}</b><span>دوستی: ${fa(f)}</span><button class=b style="flex:0 0 200px" onclick="tea1(${i})">چای بریز</button></div>`}).join('')+'<p>یک بسته چای مصرف می‌شود. تا چای تمام نشده مشتری نمی‌آید.</p>')}
+function tea1(i){let r=REG[i],f=sh.reg[r[0]]||0;sh.stock.chai-=1;tea={t:25,r,n:r[0],c:{id:99,x:700,tx:700,st:0,n:r[0],col:r[2],hr:r[6]?'#ddd':'#222',sk:'#e3b58c',f:0,msg:r[3],p:P[2],q:1,offer:0}};sh.reg[r[0]]=f+2;rep(1);coin();save();cl()}
+function fit(){let s=Math.min(innerWidth/960,innerHeight/540);$('g').style.transform='translate(-50%,-50%) scale('+s+')'}
+addEventListener('resize',fit);fit();addEventListener('beforeunload',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+requestAnimationFrame(step);
+</script></body></html>
